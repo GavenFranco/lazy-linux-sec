@@ -184,33 +184,30 @@ EOF
 
 
 antivirus_and_rootkit_check() {
-  echo "Checking if ClamAV is installed..."
-  if ! command -v clamscan &> /dev/null; then
-    echo "Installing ClamAV..."
+    echo "Installing required packages..."
     sudo apt-get update
-    sudo apt-get install clamav -y > /dev/null
-    echo "ClamAV installed successfully."
-  else
-    echo "ClamAV is already installed."
-  fi
+    sudo apt-get install -y chkrootkit rkhunter lynis clamav
 
-  echo "Installing RootKit Hunter..."
-  if ! command -v chkrootkit &> /dev/null; then
-    sudo apt-get install chkrootkit -y > /dev/null
-    echo "RootKit Hunter installed successfully."
-  else
-    echo "RootKit Hunter is already installed."
-  fi
+    echo "Starting CHKROOTKIT scan..."
+    chkrootkit -q
 
-  clear
+    echo "Starting RKHUNTER scan..."
+    rkhunter --update
+    rkhunter --propupd  # Run this once at install
+    rkhunter -c --enable all --disable none
 
-  echo "Running ClamAV scan..."
-  sudo clamscan -r / > avoutput.log
-  echo "ClamAV scan completed. Results saved to avoutput.log."
+    echo "Starting LYNIS scan..."
+    /usr/share/lynis/lynis update info
+    /usr/share/lynis/lynis audit system
 
-  echo "Running Rootkit check..."
-  sudo chkrootkit >> rootkit.log
-  echo "Rootkit check completed. Results saved to rootkit.log."
+    echo "Starting CLAMAV scan..."
+    systemctl stop clamav-freshclam
+    freshclam --stdout
+    systemctl start clamav-freshclam
+    clamscan -r -i --stdout --exclude-dir="^/sys"
+}
+
+  
 }
 
 # Network Security
