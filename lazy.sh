@@ -207,8 +207,6 @@ antivirus_and_rootkit_check() {
     clamscan -r -i --stdout --exclude-dir="^/sys"
 }
 
-  
-}
 
 # Network Security
 network_security() {
