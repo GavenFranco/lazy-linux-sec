@@ -183,22 +183,34 @@ EOF
 }
 
 
-# Antivirus and rootkit check
 antivirus_and_rootkit_check() {
   echo "Checking if ClamAV is installed..."
-  apt-get install clamav -y > /dev/null
-  echo "DONE"
-  clear
+  if ! command -v clamscan &> /dev/null; then
+    echo "Installing ClamAV..."
+    sudo apt-get update
+    sudo apt-get install clamav -y > /dev/null
+    echo "ClamAV installed successfully."
+  else
+    echo "ClamAV is already installed."
+  fi
 
   echo "Installing RootKit Hunter..."
-  apt-get install chkrootkit -y > /dev/null
+  if ! command -v chkrootkit &> /dev/null; then
+    sudo apt-get install chkrootkit -y > /dev/null
+    echo "RootKit Hunter installed successfully."
+  else
+    echo "RootKit Hunter is already installed."
+  fi
+
   clear
 
   echo "Running ClamAV scan..."
-  clamscan -r / > avoutput.log
+  sudo clamscan -r / > avoutput.log
+  echo "ClamAV scan completed. Results saved to avoutput.log."
 
   echo "Running Rootkit check..."
-  chkrootkit >> rootkit.log
+  sudo chkrootkit >> rootkit.log
+  echo "Rootkit check completed. Results saved to rootkit.log."
 }
 
 # Network Security
