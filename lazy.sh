@@ -168,7 +168,7 @@ reset_apt_repositories() {
   cp "$sources_list" "$backup_sources_list"
 
   # Create a new default sources.list file
-  cat <<EOF > "$sources_list"
+  cat << EOF > "$sources_list"
 deb http://deb.debian.org/debian/ bullseye main
 deb-src http://deb.debian.org/debian/ bullseye main
 
